@@ -41,20 +41,31 @@ def build_parser(subparsers=None):
 
 
 def run(args, stdout=None):
-    """Execute the diff subcommand."""
+    """Execute the diff subcommand.
+
+    Returns 0 if the files are identical, 1 if they differ, or 2 if an
+    error occurs (e.g. a file is not found or cannot be read).
+    """
     if stdout is None:
         stdout = sys.stdout
 
     label_a = args.label_a or args.file_a
     label_b = args.label_b or args.file_b
 
-    output = diff_configs(
-        args.file_a,
-        args.file_b,
-        label_a=label_a,
-        label_b=label_b,
-        colorize=not args.no_color,
-    )
+    try:
+        output = diff_configs(
+            args.file_a,
+            args.file_b,
+            label_a=label_a,
+            label_b=label_b,
+            colorize=not args.no_color,
+        )
+    except FileNotFoundError as exc:
+        sys.stderr.write(f"confctl diff: error: {exc}\n")
+        return 2
+    except OSError as exc:
+        sys.stderr.write(f"confctl diff: error reading file: {exc}\n")
+        return 2
 
     if output:
         stdout.write(output)
