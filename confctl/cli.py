@@ -37,7 +37,10 @@ def main(argv: list[str] | None = None) -> None:
     }
 
     if args.command in dispatch:
-        dispatch[args.command](args)
+        try:
+            dispatch[args.command](args)
+        except KeyboardInterrupt:
+            sys.exit(130)
     else:
         parser.print_help()
         sys.exit(0)
