@@ -41,6 +41,9 @@ def main(argv: list[str] | None = None) -> None:
             dispatch[args.command](args)
         except KeyboardInterrupt:
             sys.exit(130)
+        except Exception as exc:  # noqa: BLE001
+            print(f"error: {exc}", file=sys.stderr)
+            sys.exit(1)
     else:
         parser.print_help()
         sys.exit(0)
