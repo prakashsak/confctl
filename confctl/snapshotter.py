@@ -78,13 +78,35 @@ def diff_snapshots(
     return result
 
 
+def summary_diff(diff: dict[str, Any]) -> str:
+    """Return a human-readable summary string for a diff produced by diff_snapshots.
+
+    Each line reports the path and its status. For changed files the counts of
+    added, removed, and modified keys are included.
+    """
+    lines: list[str] = []
+    for path, info in diff.items():
+        status = info.get("status", "unknown")
+        if status == "changed":
+            n_added = len(info.get("added", {}))
+            n_removed = len(info.get("removed", {}))
+            n_changed = len(info.get("changed", {}))
+            lines.append(
+                f"{path}: changed "
+                f"(+{n_added} added, -{n_removed} removed, ~{n_changed} modified)"
+            )
+        else:
+            lines.append(f"{path}: {status}")
+    return "\n".join(lines)
+
+
 def _flatten(data: Any, prefix: str = "") -> dict[str, Any]:
     """Flatten a nested dict into dot-separated keys."""
     items: dict[str, Any] = {}
     if isinstance(data, dict):
-        for k, v in data.items():
-            full_key = f"{prefix}.{k}" if prefix else str(k)
-            items.update(_flatten(v, full_key))
+        for key, value in data.items():
+            full_key = f"{prefix}.{key}" if prefix else str(key)
+            items.update(_flatten(value, full_key))
     else:
         items[prefix] = data
     return items
