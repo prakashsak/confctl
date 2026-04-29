@@ -47,6 +47,18 @@ def test_parse_variables_returns_dict():
     assert result == {"host": "localhost", "port": "5432"}
 
 
+def test_parse_variables_empty_list_returns_empty_dict():
+    """Ensure an empty variable list produces an empty dict without error."""
+    result = _parse_variables([])
+    assert result == {}
+
+
+def test_parse_variables_value_with_equals_sign():
+    """Values that contain '=' should be preserved correctly."""
+    result = _parse_variables(["url=http://host:80/path?a=1"])
+    assert result == {"url": "http://host:80/path?a=1"}
+
+
 def test_parse_variables_invalid_format_raises():
     with pytest.raises(ValueError, match="KEY=VALUE"):
         _parse_variables(["badvalue"])
