@@ -39,6 +39,14 @@ def test_file_hash_changes_on_content_change(config_files):
     assert h1 != h2
 
 
+def test_file_hash_identical_content_same_hash(config_files):
+    """Two files with identical content should produce the same hash."""
+    p = config_files["a"]
+    q = config_files["b"]
+    q.write_text(p.read_text())
+    assert _file_hash(p) == _file_hash(q)
+
+
 def test_build_snapshot_returns_dict(config_files):
     snap = build_snapshot(list(config_files.values()))
     assert len(snap) == 2
@@ -79,6 +87,19 @@ def test_detect_changes_no_diff(config_files):
     p = config_files["a"]
     snap = {str(p): "abc"}
     assert detect_changes(snap, snap) == {}
+
+
+def test_detect_changes_multiple_events(config_files):
+    """detect_changes should report all changed, added, and removed entries at once."""
+    a = config_files["a"]
+    b = config_files["b"]
+    extra = a.parent / "c.yaml"
+    old = {str(a): "hash1", str(b): "hash2"}
+    new = {str(a): "hash1_changed", str(extra): "hash3"}
+    changes = detect_changes(old, new)
+    assert changes[str(a)] == "modified"
+    assert changes[str(b)] == "removed"
+    assert changes[str(extra)] == "added"
 
 
 def test_watch_invokes_callback_on_change(config_files):
