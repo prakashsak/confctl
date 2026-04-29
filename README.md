@@ -32,6 +32,9 @@ confctl list
 
 # Validate a config file against a schema
 confctl validate --env staging --config ./configs/app.yaml
+
+# Show the resolved config for a specific environment
+confctl show --env production
 ```
 
 ### Example
@@ -53,7 +56,12 @@ $ confctl diff staging production
 [environments]
 staging = "./configs/staging"
 production = "./configs/production"
+
+[defaults]
+base = "./configs/base"
 ```
+
+Values defined in `base` are inherited by all environments and can be overridden per environment.
 
 ---
 
