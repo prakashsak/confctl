@@ -67,6 +67,13 @@ def run(args: argparse.Namespace) -> int:
 
         elif args.schedule_cmd == "done":
             jobs = load_schedule(schedule_file)
+            if args.index < 0 or args.index >= len(jobs):
+                print(
+                    f"schedule error: index {args.index} is out of range "
+                    f"(schedule has {len(jobs)} job(s))",
+                    file=sys.stderr,
+                )
+                return 1
             jobs = mark_done(jobs, args.index)
             save_schedule(jobs, schedule_file)
             print(f"Job #{args.index} marked as done.")
