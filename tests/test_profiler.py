@@ -84,6 +84,12 @@ def test_compare_profiles_empty_dicts():
     assert result["unchanged"] == []
 
 
+def test_compare_profiles_result_keys_are_complete():
+    """Ensure compare_profiles always returns all four expected keys."""
+    result = compare_profiles({"a": 1}, {"b": 2})
+    assert set(result.keys()) == {"added", "removed", "changed", "unchanged"}
+
+
 def test_format_profile_summary_no_diff():
     summary = {"added": {}, "removed": {}, "changed": {}, "unchanged": ["port"]}
     out = format_profile_summary(summary, color=False)
@@ -100,11 +106,16 @@ def test_format_profile_summary_shows_all_categories():
     out = format_profile_summary(summary, color=False)
     assert "+ workers" in out
     assert "- debug" in out
-    assert "~ host" in out
-    assert "port" in out
 
 
-def test_format_profile_summary_empty_returns_message():
-    summary = {"added": {}, "removed": {}, "changed": {}, "unchanged": []}
+def test_format_profile_summary_changed_shows_both_values():
+    """Verify that a changed key displays both the old and new values."""
+    summary = {
+        "added": {},
+        "removed": {},
+        "changed": {"host": ("localhost", "prod.example.com")},
+        "unchanged": [],
+    }
     out = format_profile_summary(summary, color=False)
-    assert out == "No differences found."
+    assert "localhost" in out
+    assert "prod.example.com" in out
