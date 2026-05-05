@@ -55,6 +55,13 @@ def test_flatten_empty():
     assert _flatten({}) == {}
 
 
+def test_flatten_preserves_non_dict_values():
+    """Ensure _flatten does not recurse into lists or other non-dict values."""
+    data = {"a": [1, 2, 3], "b": {"c": None}}
+    flat = _flatten(data)
+    assert flat == {"a": [1, 2, 3], "b.c": None}
+
+
 def test_trace_key_finds_in_both_files(yaml_files):
     origins = trace_key("db.host", [yaml_files["a"], yaml_files["b"]])
     assert len(origins) == 2
